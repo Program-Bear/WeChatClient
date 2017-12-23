@@ -3,4 +3,4 @@ project(WeChatClient)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(WeChatClient main.cpp)
+add_executable(WeChatClient main.cpp ack_def.h command_def.h Protocal.h)

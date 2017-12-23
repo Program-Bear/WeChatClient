@@ -6,6 +6,24 @@
 
 #IncludeRegexTransform: 
 
+/Users/victor/CLionProjects/WeChatClient/Protocal.h
+iostream
+-
+cstdio
+-
+cstdlib
+-
+string.h
+-
+command_def.h
+/Users/victor/CLionProjects/WeChatClient/command_def.h
+ack_def.h
+/Users/victor/CLionProjects/WeChatClient/ack_def.h
+
+/Users/victor/CLionProjects/WeChatClient/ack_def.h
+
+/Users/victor/CLionProjects/WeChatClient/command_def.h
+
 /Users/victor/CLionProjects/WeChatClient/main.cpp
 iostream
 -
@@ -21,6 +39,8 @@ arpa/inet.h
 -
 unistd.h
 -
+Protocal.h
+/Users/victor/CLionProjects/WeChatClient/Protocal.h
 string.h
 -
 stdlib.h
@@ -29,4 +49,8 @@ fcntl.h
 -
 sys/shm.h
 -
+ack_def.h
+/Users/victor/CLionProjects/WeChatClient/ack_def.h
+command_def.h
+/Users/victor/CLionProjects/WeChatClient/command_def.h
 

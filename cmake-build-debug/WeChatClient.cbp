@@ -82,6 +82,15 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/victor/CLionProjects/WeChatClient/Protocal.h">
+			<Option target="WeChatClient"/>
+		</Unit>
+		<Unit filename="/Users/victor/CLionProjects/WeChatClient/ack_def.h">
+			<Option target="WeChatClient"/>
+		</Unit>
+		<Unit filename="/Users/victor/CLionProjects/WeChatClient/command_def.h">
+			<Option target="WeChatClient"/>
+		</Unit>
 		<Unit filename="/Users/victor/CLionProjects/WeChatClient/main.cpp">
 			<Option target="WeChatClient"/>
 		</Unit>
