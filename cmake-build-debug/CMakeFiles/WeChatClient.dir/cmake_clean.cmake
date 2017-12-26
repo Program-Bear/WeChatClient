@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/WeChatClient.dir/main.cpp.o"
+  "CMakeFiles/WeChatClient.dir/Envolop.cpp.o"
   "WeChatClient.pdb"
   "WeChatClient"
 )

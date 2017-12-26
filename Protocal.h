@@ -10,6 +10,7 @@
 #include<string.h>
 #include"command_def.h"
 #include"ack_def.h"
+#include<fstream>
 
 using namespace std;
 class Protocal{
@@ -46,7 +47,7 @@ public:
         int * total_len_place = new int();
         memcpy(total_len_place, raw_data+20, 4);
         total_len = *total_len_place;
-        cout << "here: " << data_len << endl;
+        cout << "create protocal with data length: " << data_len << endl;
 
         data = new char[data_len];
         memcpy(data, raw_data+24, data_len);
@@ -58,12 +59,25 @@ public:
         target = tid;
         data_len = len;
         if(_data != NULL) {
-            //cout << "here data is " << _data << endl;
-            char *buffer = new char[len];
-            memcpy(buffer, _data, len);
-            data = buffer;
+            data = new char[len];
+            memcpy(data, _data, len);
         }
         total_len = sizeof(_command) + sizeof(_ack) + sizeof(sid) + sizeof(tid) + sizeof(data_len) + sizeof(total_len) + len;
+    }
+    Protocal(COMMAND_DEF _command, ACK_DEF _ack, int sid, int tid, string _data, int len){
+        command = _command;
+        ack = _ack;
+        source = sid;
+        target = tid;
+        data_len = len;
+        if(_data.c_str() != NULL){
+            data = new char[len];
+            _data.copy(data, len, 0);
+        }
+        total_len = sizeof(_command) + sizeof(_ack) + sizeof(sid) + sizeof(tid) + sizeof(data_len) + sizeof(total_len) + len;
+    }
+    ~Protocal(){
+        if(data != NULL) delete[] data;
     }
     COMMAND_DEF get_command(){
         return command;
@@ -112,8 +126,18 @@ public:
         memcpy(raw_buffer + 24, data, data_len);
         return raw_buffer;
     }
-
+public:
+     static string read_file(string filename){
+        ifstream f(filename, ios::binary);
+        string ans((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
+        f.close();
+        return ans;
+    }
+    static void write_file(string filename, char* data, int len){
+        ofstream f(filename, ios::binary);
+        f.write(data, len);
+        f.close();
+    }
 };
-
 
 #endif //WECHATCLIENT_PROTOCAL_H

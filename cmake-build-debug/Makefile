@@ -123,6 +123,33 @@ WeChatClient/fast:
 	$(MAKE) -f CMakeFiles/WeChatClient.dir/build.make CMakeFiles/WeChatClient.dir/build
 .PHONY : WeChatClient/fast
 
+Envolop.o: Envolop.cpp.o
+
+.PHONY : Envolop.o
+
+# target to build an object file
+Envolop.cpp.o:
+	$(MAKE) -f CMakeFiles/WeChatClient.dir/build.make CMakeFiles/WeChatClient.dir/Envolop.cpp.o
+.PHONY : Envolop.cpp.o
+
+Envolop.i: Envolop.cpp.i
+
+.PHONY : Envolop.i
+
+# target to preprocess a source file
+Envolop.cpp.i:
+	$(MAKE) -f CMakeFiles/WeChatClient.dir/build.make CMakeFiles/WeChatClient.dir/Envolop.cpp.i
+.PHONY : Envolop.cpp.i
+
+Envolop.s: Envolop.cpp.s
+
+.PHONY : Envolop.s
+
+# target to generate assembly for a file
+Envolop.cpp.s:
+	$(MAKE) -f CMakeFiles/WeChatClient.dir/build.make CMakeFiles/WeChatClient.dir/Envolop.cpp.s
+.PHONY : Envolop.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -159,6 +186,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... WeChatClient"
+	@echo "... Envolop.o"
+	@echo "... Envolop.i"
+	@echo "... Envolop.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

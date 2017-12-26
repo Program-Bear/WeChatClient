@@ -82,6 +82,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/victor/CLionProjects/WeChatClient/Envolop.cpp">
+			<Option target="WeChatClient"/>
+		</Unit>
 		<Unit filename="/Users/victor/CLionProjects/WeChatClient/Protocal.h">
 			<Option target="WeChatClient"/>
 		</Unit>

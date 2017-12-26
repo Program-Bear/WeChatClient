@@ -1,1 +1,1 @@
-/Library/Developer/CommandLineTools/usr/bin/c++  -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/WeChatClient.dir/main.cpp.o  -o WeChatClient 
+/Library/Developer/CommandLineTools/usr/bin/c++  -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/WeChatClient.dir/main.cpp.o CMakeFiles/WeChatClient.dir/Envolop.cpp.o  -o WeChatClient 

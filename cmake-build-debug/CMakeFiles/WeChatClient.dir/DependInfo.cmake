@@ -4,6 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/Users/victor/CLionProjects/WeChatClient/Envolop.cpp" "/Users/victor/CLionProjects/WeChatClient/cmake-build-debug/CMakeFiles/WeChatClient.dir/Envolop.cpp.o"
   "/Users/victor/CLionProjects/WeChatClient/main.cpp" "/Users/victor/CLionProjects/WeChatClient/cmake-build-debug/CMakeFiles/WeChatClient.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")

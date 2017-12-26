@@ -6,6 +6,8 @@
 
 #IncludeRegexTransform: 
 
+/Users/victor/CLionProjects/WeChatClient/Envolop.cpp
+
 /Users/victor/CLionProjects/WeChatClient/Protocal.h
 iostream
 -
@@ -19,6 +21,8 @@ command_def.h
 /Users/victor/CLionProjects/WeChatClient/command_def.h
 ack_def.h
 /Users/victor/CLionProjects/WeChatClient/ack_def.h
+fstream
+-
 
 /Users/victor/CLionProjects/WeChatClient/ack_def.h
 
@@ -41,6 +45,8 @@ unistd.h
 -
 Protocal.h
 /Users/victor/CLionProjects/WeChatClient/Protocal.h
+fcntl.h
+-
 string.h
 -
 stdlib.h
