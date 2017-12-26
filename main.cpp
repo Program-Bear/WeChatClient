@@ -16,6 +16,7 @@
 using namespace std;
 #define SOCK_PORT 9890
 #define BUFFER_SIZE 1024
+#define CHUNK_SIZE 1024
 #define SPLIT "--------------------"
 
 const string server_ip = "127.0.0.1";
@@ -42,8 +43,11 @@ int main(){
     int sock_id;
     bool in_log = false;
     bool in_chat = false;
+
+
     int chat_target = -1;
     char* chat_name = new char[100];
+
 
     sock_cli = socket(AF_INET,SOCK_STREAM, 0);
     struct sockaddr_in servaddr;
@@ -270,28 +274,6 @@ int main(){
                         }
                         break;
                     }
-/*
-                    case(SYNC_ACK){
-                        if(receive_packet ->get_ack() == SUCCESS){
-                            cout << "Your friends' info are as follow" << endl;
-                            char* buffer = receive_packet ->get_data();
-                            char** friends = new char*[100];
-                            int counter = 0;
-                            friends[counter] = strtok(buffer, "&&");
-                            while(friends[counter]){
-                                friends[counter++] = strtok(NULL, "&&");
-                            }
-                            for(int i = 0; i < counter; i++){
-                                cout << SPLIT << endl;
-                                cout << "Friend " << i + 1 << " : " << endl;
-                                char* name = strtok(friends[i],"&");
-                                cout << "Name: " << name << endl;
-                                char* _log = strtok(NULL,"&");
-
-                            }
-                        }
-                    }
-       */
 
                 }
                 memset(recvbuf, 0, sizeof(recvbuf));
@@ -309,30 +291,43 @@ int main(){
                 cout << strcmp("send_file\n",buffer) << endl;
 
                 if(strcmp(send_file, buffer) == 0){
-                    //cout << "Please input the path(without space)" << endl;
-                    string path = "/Users/victor/Test/analyze.py";
-                    //cin >> path;
+                    cout << "Please input the path(without space)" << endl;
+                    //string now_path = "/Users/victor/Test/Archive.zip";
+                    string now_path;
+                    cin >> now_path;
 
-                    //cout << "Please input the filename(without space)" << endl;
-                    string filename = "analyze.py";
-                    //cin >> filename;
+                    cout << "Please input the filename(without space)" << endl;
+                    //string filename = "Archive.zip";
+                    string filename;
+                    cin >> filename;
 
                     string target_name = "weijy2";
 
-                    if(access(path.c_str(),F_OK) != 0){
-                        cout << "Invalid file path: "<< path.c_str()  << endl;
+                    if(access(now_path.c_str(),F_OK) != 0){
+                        cout << "Invalid file path: "<< now_path.c_str()  << endl;
                         continue;
                     }
 
-                    string temp = Protocal::read_file(path);
-                    cout << "raw temp: " << temp << endl;
-                    temp = temp + "&" + filename + "&" + target_name;
-                    Protocal* file_send = new Protocal(FILESEND, -1,sock_id, 5, temp, temp.size());
-                   // cout << "Before send size : " << strlen(file_send ->get_data()) << endl;
-                   // cout << "Before send total length" << file_send ->send_data() +20 << endl;
-                    cout << "Before send total legnth: " << file_send ->get_length() << endl;
-                   // cout << "Before send: " << strlen(file_send ->send_data() + 24) << endl;
-                    send(sock_cli,file_send ->send_data(),file_send->get_length(),0);
+                    cout << "Send Head" << endl;
+                    Protocal* file_start = new Protocal(FILE_START, -1,sock_id, 5, "",  filename, target_name, 0);
+                    send(sock_cli,file_start ->send_data(),file_start->get_length(),0);
+                    cout << "File Transfer Start" << endl;
+                    char* chunk = new char[CHUNK_SIZE];
+                    int length = 0;
+                    bzero(chunk, CHUNK_SIZE);
+                    FILE* fp = fopen(now_path.c_str(), "rb");
+
+                    while((length = fread(chunk, sizeof(char), CHUNK_SIZE, fp)) > 0){
+                        cout << "length: " << length << endl;
+                        cout << "Send Body" << endl;
+                        if(send(sock_cli,chunk,length,0) == -1){
+                            cout << "Socket Error" << endl;
+                        };
+
+                        bzero(chunk,length);
+                    }
+
+                    cout << "Send finish" << endl;
                 }
 
 
@@ -352,7 +347,6 @@ int main(){
                     cout << "Please your password(less than 100 no space)" << endl;
                     char* password = new char[100];
                     cin >> password;
-                    //fgets(password, sizeof(password), stdin);
                     strtok(password, "\n");
 
                     char* buffer = new char[BUFFER_SIZE];
@@ -364,9 +358,6 @@ int main(){
                     Protocal* _signup = new Protocal(SIGN_UP, -1, sock_id, -1, buffer, strlen(buffer));
                     char* sendtemp = _signup ->send_data();
                     send(sock_cli, sendtemp, _signup ->get_length(),0);
-                  //  delete _signup;
-                  //  delete password;
-                  //  delete name;
                 }
 
                 if (strcmp(log_in, buffer) == 0){
@@ -505,7 +496,7 @@ int main(){
 
                     char* temp = strtok(mes, "\n");
 
-                    cout << "Before send: " << temp << endl;
+                    cout << "Send: " << temp << endl;
                     Protocal* mes_ = new Protocal(MESSAGE, -1, sock_id, chat_target, temp, strlen(temp));
                     send(sock_cli, mes_ ->send_data(),  mes_ ->get_length(), 0);
                 }
@@ -562,6 +553,9 @@ int main(){
                     send(sock_cli, rem ->send_data(), rem ->get_length(), 0);
                 }
 
+                if(strcmp(_receive_file,buffer) == 0){
+
+                }
 
 
                 //delete buffer;
