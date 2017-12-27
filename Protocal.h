@@ -56,7 +56,7 @@ public:
         memcpy(total_len_place, raw_data + 220, 4);
         total_len = *total_len_place;
 
-        cout << "create protocal with data length: " << data_len << endl;
+        //cout << "create protocal with data length: " << data_len << endl;
 
         data = new char[data_len];
         memcpy(data, raw_data+224, data_len);

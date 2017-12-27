@@ -14,7 +14,7 @@
 #include "ack_def.h"
 #include "command_def.h"
 using namespace std;
-#define SOCK_PORT 9890
+#define SOCK_PORT 9886
 #define BUFFER_SIZE 1024
 #define CHUNK_SIZE 1024
 #define SPLIT "--------------------"
@@ -34,6 +34,8 @@ const char* _receive_message = "recvmsg\n";
 const char* _receive_file = "recvfile\n";
 const char* _profile = "profile\n";
 const char* _sync_friend = "sync\n";
+const char* _test_file = "testfile\n";
+const string file_path = "/Users/victor/SocketDownload/";
 
 int main(){
     int sock_cli;
@@ -43,7 +45,7 @@ int main(){
     int sock_id;
     bool in_log = false;
     bool in_chat = false;
-
+    bool in_file = false;
 
     int chat_target = -1;
     char* chat_name = new char[100];
@@ -89,19 +91,19 @@ int main(){
                     cout << "connection fail" << endl;
                     exit(1);
                 }
-                cout << len << endl;
+                //cout << len << endl;
                 int* temp = new int();
                 memcpy(temp, recvbuf+4, 4);
                 int id = *temp;
-                cout << "get id: " << id << endl;
+                //cout << "get id: " << id << endl;
 
                 Protocal* receive_packet = new Protocal(recvbuf);
-                cout << "receive command: " << receive_packet ->get_command() << endl;
-                cout << "receive ack: " << receive_packet -> get_ack() << endl;
+                //cout << "receive command: " << receive_packet ->get_command() << endl;
+                //cout << "receive ack: " << receive_packet -> get_ack() << endl;
                 switch(receive_packet ->get_command()){
                     case(CONNECT_ACK):{
                         if (receive_packet -> get_ack() == SUCCESS){
-                            cout << "connect successful" << " your socket id is " << receive_packet ->get_source() << endl;
+                            cout << "connect successful" << " with socket id: " << receive_packet ->get_source() << endl;
                         }
                         sock_id = receive_packet ->get_source();
                         break;
@@ -195,9 +197,10 @@ int main(){
                     case(CHAT_ACK):{
                         if (receive_packet ->get_ack() == SUCCESS){
                             chat_target = receive_packet ->get_target();
-                            char* chat_name = receive_packet ->get_data();
-                            cout << "Start Chatting with " << chat_name << endl;
+                            char* _chat_name = receive_packet ->get_data();
+                            cout << "Start Chatting with " << _chat_name << endl;
                             in_chat = true;
+                            chat_name = _chat_name;
                         }else if(receive_packet ->get_ack() == OFF_LINE){
                             cout << "Your friend is off line." << endl;
                             cout << "We will keep the latest message or file for you" << endl;
@@ -275,6 +278,52 @@ int main(){
                         break;
                     }
 
+                    case(REFILE_ACK):{
+                        if(receive_packet ->get_ack() == SUCCESS){
+                            if(in_file){
+                                break;
+                            }
+                            in_file = true;
+                            string file_name = receive_packet ->get_file_name();
+                            int size = receive_packet ->get_target();
+                            string path = file_path+file_name;
+                            //cout << "path is: " << path << endl;
+
+                            FILE* fp = fopen(path.c_str(),"wb+");
+                            if(fp == NULL){
+                                cout << "No such file" << endl;
+                                break;
+                            }
+                            char* buffer = new char[BUFFER_SIZE];
+                            bzero(buffer, BUFFER_SIZE);
+                            int length = recv(sock_cli, buffer, BUFFER_SIZE,0);
+                            int temp = 0;
+                            do{
+                                cout << "Download packet of: " << length << " Bytes" << endl;
+                                //cout << length << endl;
+                                fwrite(buffer, sizeof(char), length, fp);
+                                //if(length < BUFFER_SIZE) break;
+                                temp += length;
+                                //if(temp == size) break;
+
+                                bzero(buffer, BUFFER_SIZE);
+                                if(temp == size) break;
+
+                                length = recv(sock_cli, buffer, BUFFER_SIZE,0);
+                                //cout << "next judge: " << length << endl;
+                            }while(length > 0);
+                            //cout << temp << " " << size << endl;
+                            cout << "DownLoad Successful! File saved at " + path << endl;
+                            fclose(fp);
+                            in_file = false;
+                        }else{
+                            cout << "Receive File Fail" << endl;
+                        }
+                        break;
+                    }
+
+
+
                 }
                 memset(recvbuf, 0, sizeof(recvbuf));
                // delete receive_packet;
@@ -287,10 +336,18 @@ int main(){
                 //fgets(buffer, sizeof(buffer), stdin);
                 getline(&buffer,&size,stdin);
                 //cin >> buffer;
-                cout << "get input of " << buffer << endl;
-                cout << strcmp("send_file\n",buffer) << endl;
-
+                //cout << "get input of " << buffer << endl;
+                //cout << strcmp("send_file\n",buffer) << endl;
+                //cout << "chat name is: " << chat_name << endl;
                 if(strcmp(send_file, buffer) == 0){
+                    if(!in_log){
+                        cout << "You has not log in before" << endl;
+                        continue;
+                    }
+                    if(!in_chat){
+                        cout << "You are not in chat" << endl;
+                        continue;
+                    }
                     cout << "Please input the path(without space)" << endl;
                     //string now_path = "/Users/victor/Test/Archive.zip";
                     string now_path;
@@ -301,15 +358,15 @@ int main(){
                     string filename;
                     cin >> filename;
 
-                    string target_name = "weijy2";
+                    string target_name = chat_name;
 
                     if(access(now_path.c_str(),F_OK) != 0){
                         cout << "Invalid file path: "<< now_path.c_str()  << endl;
                         continue;
                     }
 
-                    cout << "Send Head" << endl;
-                    Protocal* file_start = new Protocal(FILE_START, -1,sock_id, 5, "",  filename, target_name, 0);
+                    //cout << "Send Head of: " << target_name << endl;
+                    Protocal* file_start = new Protocal(FILE_START, -1,sock_id, chat_target, "",  filename, target_name, 0);
                     send(sock_cli,file_start ->send_data(),file_start->get_length(),0);
                     cout << "File Transfer Start" << endl;
                     char* chunk = new char[CHUNK_SIZE];
@@ -318,16 +375,16 @@ int main(){
                     FILE* fp = fopen(now_path.c_str(), "rb");
 
                     while((length = fread(chunk, sizeof(char), CHUNK_SIZE, fp)) > 0){
-                        cout << "length: " << length << endl;
-                        cout << "Send Body" << endl;
+                        cout << "Send length of: " << length << endl;
+                        //cout << "Send Body" << endl;
                         if(send(sock_cli,chunk,length,0) == -1){
                             cout << "Socket Error" << endl;
-                        };
+                        }
 
                         bzero(chunk,length);
                     }
-
-                    cout << "Send finish" << endl;
+                    fclose(fp);
+                    cout << "Upload finish" << endl;
                 }
 
 
@@ -400,10 +457,12 @@ int main(){
                         cout << "You has not log in before" << endl;
                         continue;
                     }
+
                     if(in_chat){
                         cout << "You are in chat" << endl;
                         continue;
                     }
+
                     Protocal* _logout = new Protocal(LOG_OUT,-1,sock_id,-1,NULL,0);
                     char* sendtemp = _logout ->send_data();
                     send(sock_cli, sendtemp,_logout ->get_length(),0);
@@ -472,6 +531,7 @@ int main(){
                     cin >> name;
                     name = strtok(name, "\n");
                     memcpy(chat_name, name, strlen(name));
+
                     Protocal* chat_ = new Protocal(CHAT, -1, sock_id, -1, name, strlen(name));
                     char* sendtemp = chat_ ->send_data();
                     send(sock_cli, sendtemp, chat_ ->get_length(), 0);
@@ -512,6 +572,8 @@ int main(){
                     }
                     Protocal* exit_ = new Protocal(EXIT, -1, sock_id, chat_target, NULL, 0);
                     send(sock_cli, exit_ ->send_data(), exit_ ->get_length(), 0);
+                    in_chat = false;
+                    chat_name = "";
                 }
 
                 if (strcmp(_profile, buffer) == 0){
@@ -554,9 +616,23 @@ int main(){
                 }
 
                 if(strcmp(_receive_file,buffer) == 0){
+                    if(!in_log){
+                        cout << "You has not log in before" << endl;
+                        continue;
+                    }
+
+                    Protocal* ref = new Protocal(REFILE,-1,sock_id,-1,NULL,0);
+                    send(sock_cli, ref ->send_data(), ref ->get_length(), 0);
 
                 }
-
+                if(strcmp(_test_file,buffer) == 0){
+                    if(!in_log){
+                        cout << "You has not log in before" << endl;
+                        continue;
+                    }
+                    Protocal* test = new Protocal(REFILE,-1,sock_id,-1,NULL,0);
+                    send(sock_cli,test ->send_data(), test->get_length(),0);
+                }
 
                 //delete buffer;
             }
